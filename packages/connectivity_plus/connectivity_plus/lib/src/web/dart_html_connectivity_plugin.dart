@@ -1,5 +1,7 @@
 import 'dart:async';
-import 'dart:html' as html show window;
+import 'dart:js_interop';
+import 'package:web/helpers.dart';
+import 'package:web/web.dart' as html show window;
 
 import 'package:connectivity_plus_platform_interface/connectivity_plus_platform_interface.dart';
 
@@ -23,12 +25,12 @@ class DartHtmlConnectivityPlugin extends ConnectivityPlusWebPlugin {
     if (_connectivityResult == null) {
       _connectivityResult = StreamController<ConnectivityResult>.broadcast();
       // Fallback to dart:html window.onOnline / window.onOffline
-      html.window.onOnline.listen((event) {
+      html.window.ononline = (Event event) {
         _connectivityResult!.add(ConnectivityResult.wifi);
-      });
-      html.window.onOffline.listen((event) {
+      }.toJS;
+      html.window.onoffline = (Event event) {
         _connectivityResult!.add(ConnectivityResult.none);
-      });
+      }.toJS;
     }
     return _connectivityResult!.stream;
   }

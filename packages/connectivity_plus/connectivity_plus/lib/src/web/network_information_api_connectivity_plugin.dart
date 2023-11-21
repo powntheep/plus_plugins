@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:html' as html show window, NetworkInformation;
+import 'dart:js/js_wasm.dart';
+import 'package:web/helpers.dart';
+import 'package:web/web.dart' as html show window, NetworkInformation;
 import 'dart:js_util';
 
 import 'package:connectivity_plus/src/web/utils/connectivity_result.dart';
 import 'package:connectivity_plus_platform_interface/connectivity_plus_platform_interface.dart';
 import 'package:flutter/foundation.dart';
-import 'package:js/js.dart';
 
 import '../connectivity_plus_web.dart';
 
