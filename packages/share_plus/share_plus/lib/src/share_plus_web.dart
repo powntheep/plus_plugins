@@ -1,4 +1,6 @@
-import 'dart:html' as html;
+import 'dart:js_interop';
+
+import 'package:web/helpers.dart' as html;
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
@@ -33,7 +35,9 @@ class SharePlusWebPlugin extends SharePlatform {
     Rect? sharePositionOrigin,
   }) async {
     try {
-      await _navigator.share({'title': subject, 'text': text});
+      await _navigator
+          .share(html.ShareData(title: subject.toString(), text: text))
+          .toDart;
     } on NoSuchMethodError catch (_) {
       //Navigator is not available or the webPage is not served on https
       final queryParameters = {
@@ -102,23 +106,24 @@ class SharePlusWebPlugin extends SharePlatform {
     for (final xFile in files) {
       webFiles.add(await _fromXFile(xFile));
     }
-    await _navigator.share({
-      if (subject?.isNotEmpty ?? false) 'title': subject,
-      if (text?.isNotEmpty ?? false) 'text': text,
-      if (webFiles.isNotEmpty) 'files': webFiles,
-    });
+    final shareData = html.ShareData();
+    if (subject?.isNotEmpty ?? false) shareData.title = subject!;
+    if (text?.isNotEmpty ?? false) shareData.text = text!;
+    if (webFiles.isNotEmpty) shareData.files = webFiles as JSArray;
+    await _navigator.share(shareData).toDart;
 
     return _resultUnavailable;
   }
 
   static Future<html.File> _fromXFile(XFile file) async {
     final bytes = await file.readAsBytes();
+
     return html.File(
-      [ByteData.sublistView(bytes)],
+      [ByteData.sublistView(bytes)] as JSArray,
       file.name,
       {
         'type': file.mimeType ?? _mimeTypeForPath(file, bytes),
-      },
+      } as html.FilePropertyBag,
     );
   }
 
